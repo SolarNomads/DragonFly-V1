@@ -1,0 +1,546 @@
+:root {
+    /* Kurzgesagt Inspired - Level 1 Theme (Bright Day) */
+    --sky-color-top-k: #65C6F7; /* Bright Sky Blue */
+    --sky-color-bottom-k: #92DDFC; /* Lighter Sky Blue */
+    --water-color-top-k: #4DBAEB;
+    --water-color-bottom-k: #3AA7D9;
+    --sun-moon-color-k: #FFDD00; /* Bright Yellow */
+    --sun-moon-shadow-k: rgba(255, 221, 0, 0.5);
+    --cloud-color-k: #FFFFFF;
+    --outline-k: #222222; /* General outline color */
+    --text-k: #1A1A1A;
+
+    /* Creature Colors - to be varied per level or type */
+    --dragonfly-body-k: #59D2FE; --dragonfly-head-k: #49BCEF; --dragonfly-wing-k: rgba(230, 245, 255, 0.75); --dragonfly-eye-k: #FFFFFF; --dragonfly-pupil-k: #000000;
+    --fly-body-k: #FF6B6B; --fly-wing-k: rgba(255, 190, 190, 0.8);
+    --skimmer-body-k: #4ECDC4;
+    --bird-body-k: #3D3D3D; --bird-wing-k: #555555; --bird-beak-k: #FFAF00; --bird-eye-k: #FFFFFF;
+    --fish-body-k: #83EAF5; --fish-fin-k: #61C9D5;
+    --frog-body-k: #86E864; --frog-eye-k: #FFFF00; --frog-pupil-k: #000000; --frog-preparing-lunge-glow-k: rgba(255, 255, 0, 0.7);
+    --sky-terror-body-k: #7B3F99; --sky-terror-wing-k: #9650B9; --sky-terror-charge-glow-k: rgba(255, 255, 255, 0.3);
+
+    /* Power-ups */
+    --fruit-speed-k: #FFEB3B; --fruit-time-k: #76FF03; --fruit-invincible-k: #F06292; --powerup-glow-k: rgba(255, 255, 255, 0.6);
+
+    /* UI */
+    --ui-background-k: rgba(30, 30, 30, 0.8); --ui-text-color-k: #F5F5F5; --button-bg-k: #00C853; --button-hover-bg-k: #00A744; --score-popup-color-k: #FFEB3B; --hit-effect-color-k: rgba(255, 82, 82, 0.9);
+    --low-time-warning-color-k: #FF4081;
+
+    /* Scenery */
+    --lilypad-color-k: #79D75A; --lilypad-vein-color-k: #5cbf3a;
+    --reed-color-k: #5EBF4A; --reed-highlight-k: #84D172;
+    --grass-color-k: #5EBF4A;
+    --prehistoric-tree-trunk-k: #8B4513; --prehistoric-tree-frond-k: #228B22;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--sky-color-bottom-k);
+    font-family: 'Arial', sans-serif;
+    color: var(--ui-text-color-k);
+    transition: background-color 1s ease-in-out;
+}
+
+#game-area {
+    position: relative;
+    width: 90vw;
+    max-width: 800px;
+    height: 70vh;
+    max-height: 600px;
+    border: 4px solid var(--outline-k);
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: crosshair;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    transition: background-image 1s ease-in-out;
+    touch-action: none; /* Prevents scrolling on touch devices within game area */
+}
+
+.sky-gradient-k {
+    background-image: linear-gradient(to bottom, var(--sky-color-top-k), var(--sky-color-bottom-k));
+}
+
+.water-gradient-k {
+    background-image: linear-gradient(to bottom, var(--sky-color-top-k) 49.5%, var(--water-color-top-k) 50%, var(--water-color-bottom-k) 100%);
+}
+
+
+#celestial-body {
+    position: absolute;
+    top: 40px;
+    right: 60px;
+    width: 70px;
+    height: 70px;
+    background-color: var(--sun-moon-color-k);
+    border-radius: 50%;
+    box-shadow: 0 0 35px 5px var(--sun-moon-shadow-k);
+    transition: background-color 1s ease-in-out, box-shadow 1s ease-in-out, opacity 0.5s ease-in-out;
+    z-index: 1;
+}
+#celestial-body.moon-k::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 50%;
+    top: 15px;
+    left: 12px;
+    box-shadow: 20px 15px 0 rgba(0,0,0,0.08);
+}
+.hidden {
+    opacity: 0 !important; /* Use important to override other opacity transitions if needed */
+    pointer-events: none !important;
+}
+
+
+.cloud {
+    position: absolute;
+    background-color: var(--cloud-color-k);
+    border-radius: 30px; /* Adjust for desired cloud shape */
+    opacity: 0.9;
+    pointer-events: none;
+    transition: background-color 1s ease-in-out;
+    z-index: 2;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+}
+.cloud.c1 { width: 150px; height: 55px; top: 70px; left: 5%; animation: drift 70s linear infinite alternate; }
+.cloud.c2 { width: 180px; height: 65px; top: 140px; left: 65%; animation: drift 90s linear infinite alternate-reverse; }
+.cloud.c3 { width: 120px; height: 45px; top: 30px; left: 40%; animation: drift 80s linear infinite alternate; }
+
+@keyframes drift {
+    0% { transform: translateX(-250px); }
+    100% { transform: translateX(calc(100vw + 250px)); } /* Use vw for full screen drift */
+}
+
+#dragonfly {
+    position: absolute;
+    width: 90px; /* Adjust as needed */
+    height: 60px; /* Adjust as needed */
+    pointer-events: none;
+    transform-origin: center center;
+    z-index: 10;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+}
+#dragonfly.invincible-k {
+    animation: invincibleFlashKurz 0.15s infinite alternate;
+}
+@keyframes invincibleFlashKurz {
+    0% { opacity: 0.7; filter: brightness(1.3) saturate(1.8) drop-shadow(2px 2px 4px var(--powerup-glow-k)); }
+    100% { opacity: 1; filter: brightness(1.6) saturate(2.5) drop-shadow(2px 2px 6px var(--powerup-glow-k)); }
+}
+#dragonfly.speed-boost-k .wing-k {
+    animation-duration: 0.08s !important;
+}
+#dragonfly svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+.wing-k {
+    animation-duration: 0.15s;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    transform-origin: 15% 50%; /* Wing base pivot */
+}
+.wing-pair1-k .wing-front-k { animation-name: flap1-front-k; }
+.wing-pair1-k .wing-back-k  { animation-name: flap1-back-k; }
+.wing-pair2-k .wing-front-k { animation-name: flap2-front-k; animation-delay: 0.04s; }
+.wing-pair2-k .wing-back-k  { animation-name: flap2-back-k;  animation-delay: 0.04s; }
+
+@keyframes flap1-front-k { 0% { transform: rotate(5deg) scaleY(1); } 100% { transform: rotate(-30deg) scaleY(0.9); } }
+@keyframes flap1-back-k  { 0% { transform: rotate(-5deg) scaleY(1); } 100% { transform: rotate(30deg) scaleY(0.9); } }
+@keyframes flap2-front-k { 0% { transform: rotate(5deg) scaleY(1); } 100% { transform: rotate(-25deg) scaleY(0.92); } }
+@keyframes flap2-back-k  { 0% { transform: rotate(-5deg) scaleY(1); } 100% { transform: rotate(25deg) scaleY(0.92); } }
+
+.fly {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    z-index: 5;
+    /* Movement handled by JS, transition for smoothness if not directly setting x/y rapidly */
+    /* transition: left 0.5s linear, top 0.5s linear; */
+}
+.fly svg { width:100%; height:100%; display:block; overflow:visible; }
+
+.water-skimmer {
+    position: absolute;
+    width: 20px;
+    height: 8px;
+    z-index: 6;
+}
+.water-skimmer svg { width:100%; height:100%; display:block; overflow:visible; }
+
+.predator-bird {
+    position: absolute;
+    width: 120px;
+    height: 70px;
+    z-index: 15;
+    pointer-events: none;
+    filter: drop-shadow(3px 3px 4px rgba(0,0,0,0.3));
+}
+.predator-bird svg { width: 100%; height: 100%; display: block; }
+
+.bird-wing-k {
+    animation-duration: 0.35s;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    transform-origin: 85% 50%; /* Bird wing pivot at body */
+}
+.bird-wing-k.front { animation-name: birdFlapFront-k; }
+.bird-wing-k.back { animation-name: birdFlapBack-k; animation-delay: 0.05s; }
+
+@keyframes birdFlapFront-k { 0% { transform: rotate(0deg) scaleY(1); } 100% { transform: rotate(-40deg) scaleY(0.9); } }
+@keyframes birdFlapBack-k {  0% { transform: rotate(0deg) scaleY(1); } 100% { transform: rotate(35deg) scaleY(0.9); } }
+
+.jumping-fish {
+    position: absolute;
+    width: 60px;
+    height: 40px;
+    z-index: 16;
+    pointer-events: none;
+    transform-origin: 50% 80%; /* Rotate around tail/lower body for jumps */
+}
+.jumping-fish svg { width:100%; height:100%; display:block; }
+
+/* Enhanced Scenery */
+.lilypad-svg {
+    position: absolute;
+    /* width, height, top, left set by JS */
+    z-index: 0; /* Behind dragonfly but above background */
+    animation: lilypadBob 3s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+.lilypad-svg svg {
+    width: 100%;
+    height: 100%;
+    display:block;
+    overflow: visible;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+}
+@keyframes lilypadBob {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(3px); }
+}
+
+.reed-svg-cluster {
+    position: absolute;
+    /* left, bottom set by JS */
+    z-index: 0;
+    transform-origin: bottom center;
+    pointer-events: none;
+    display: flex; /* For aligning individual reeds if needed */
+    align-items: flex-end;
+}
+.reed-svg { /* Individual reed container */
+    display: inline-block; /* Or block if controlling width/height here */
+    vertical-align: bottom;
+    animation: reedSway 4s ease-in-out infinite alternate;
+    /* width, height, margin, animation-delay set by JS */
+}
+.reed-svg svg {
+    display:block;
+    overflow: visible;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.15));
+}
+@keyframes reedSway {
+    0% { transform: rotate(-2deg); }
+    50% { transform: rotate(1deg); }
+    100% { transform: rotate(3deg); }
+}
+
+.grass-clump-svg {
+    position: absolute;
+    /* width, height, left, bottom set by JS */
+    z-index: 0;
+    pointer-events: none;
+}
+.grass-clump-svg svg {
+    width:100%;
+    height:100%;
+    display:block;
+    overflow: visible;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+}
+.grass-blade {
+    animation: grassSway 3s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+}
+.grass-blade:nth-child(2) { animation-delay: 0.2s; animation-duration: 3.5s; }
+.grass-blade:nth-child(3) { animation-delay: 0.4s; animation-duration: 2.8s; }
+@keyframes grassSway {
+    0% { transform: rotate(-3deg); }
+    100% { transform: rotate(3deg); }
+}
+
+.prehistoric-tree-svg {
+    position: absolute;
+    /* width, height, left, bottom set by JS */
+    z-index: 0;
+    pointer-events: none;
+}
+.prehistoric-tree-svg svg {
+    width:100%;
+    height:100%;
+    display:block;
+    overflow: visible;
+    filter: drop-shadow(2px 3px 3px rgba(0,0,0,0.25));
+}
+.tree-frond {
+    animation: frondSway 5s ease-in-out infinite alternate;
+    transform-origin: 50% 30%; /* Adjust based on SVG frond pivot */
+}
+.tree-frond:nth-child(odd) { /* Vary animation for different fronds */
+    animation-direction: alternate-reverse;
+    animation-delay: 0.5s;
+}
+@keyframes frondSway {
+    0% { transform: rotate(-1.5deg) scale(1); }
+    100% { transform: rotate(1.5deg) scale(1.01); }
+}
+
+
+.hunter-frog {
+    position: absolute;
+    width: 60px;
+    height: 45px;
+    z-index: 7;
+    pointer-events: none;
+    filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.25));
+    transition: transform 0.1s ease-out; /* For lunge prep visual */
+}
+.hunter-frog svg { width: 100%; height: 100%; display: block; }
+.hunter-frog.preparing-lunge .frog-eye-k { /* Target specific SVG elements if needed */
+    animation: frogEyeGlow 0.3s ease-in-out;
+}
+.hunter-frog.preparing-lunge {
+    transform: scale(1.05) translateY(-2px) !important; /* Override other transforms */
+}
+@keyframes frogEyeGlow {
+    0%, 100% { fill: var(--frog-eye-k); r: 5; } /* Use the 'r' attribute for circle radius */
+    50% { fill: var(--frog-preparing-lunge-glow-k); r: 6; }
+}
+
+.sky-terror {
+    position: absolute;
+    width: 110px;
+    height: 80px;
+    z-index: 15;
+    pointer-events: none;
+    filter: drop-shadow(3px 3px 4px rgba(0,0,0,0.3));
+}
+.sky-terror svg { width: 100%; height: 100%; display: block; }
+.sky-terror.charging ellipse[fill*="var(--sky-terror-body-k)"] { /* Target body ellipses */
+    animation: skyTerrorBodyChargeGlow 0.4s ease-in-out;
+}
+@keyframes skyTerrorBodyChargeGlow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 5px var(--sky-terror-charge-glow-k)); }
+}
+.sky-terror-wing-anim-k {
+    animation-duration: 0.45s;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    transform-origin: 80% 25%; /* Wing pivot */
+}
+@keyframes skyTerrorFlap-k {
+    0% { transform: rotate(10deg); }
+    100% { transform: rotate(-30deg); }
+}
+
+.power-up-fruit {
+    position: absolute;
+    width: 35px; /* Increased size for better visibility of new shapes */
+    height: 35px;
+    z-index: 12;
+    pointer-events: none;
+    animation: fruitPulseKurz 1.3s ease-in-out infinite alternate;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+}
+.power-up-fruit svg {
+    width: 100%;
+    height: 100%;
+    display:block;
+    overflow: visible; /* Important for shapes like stars that might exceed viewBox */
+}
+@keyframes fruitPulseKurz {
+    0% { transform: scale(1); box-shadow: 0 0 8px 3px var(--powerup-glow-k); }
+    100% { transform: scale(1.15); box-shadow: 0 0 15px 5px var(--powerup-glow-k); }
+}
+
+.hit-effect {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: var(--hit-effect-color-k);
+    animation: hitBurst 0.2s ease-out forwards;
+    pointer-events: none;
+    z-index: 25;
+}
+@keyframes hitBurst {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+.enemy-impact-indicator {
+    position: absolute;
+    width: 30px; /* Adjust size as needed */
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 100, 0.8); /* Yellowish impact */
+    background-color: rgba(255, 235, 59, 0.3); /* Faint yellow fill */
+    animation: enemyImpactBurst 0.15s ease-out forwards;
+    pointer-events: none;
+    z-index: 26;
+}
+@keyframes enemyImpactBurst {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+/* Class added by JS to temporarily highlight enemy outlines */
+.hit-by-player > svg *[stroke="var(--outline-k)"] { /* Targets elements with the outline variable */
+    stroke: yellow !important; /* Bright highlight */
+    stroke-width: calc(var(--original-stroke-width, 2.5) + 1.5px) !important; /* Increase stroke width */
+    /* Note: --original-stroke-width would ideally be set per SVG element if they vary significantly */
+    transition: stroke 0.05s, stroke-width 0.05s;
+}
+
+
+#ui-overlay {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: var(--ui-background-k);
+    color: var(--ui-text-color-k);
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 2.3vw, 1.3em);
+    font-weight: bold;
+    z-index: 100;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    gap: 5px 10px; /* Spacing between UI items */
+    border: 2px solid var(--outline-k);
+}
+#ui-overlay > div { flex-shrink: 0; } /* Prevent shrinking of score/time text */
+
+#time.low-time-warning {
+    color: var(--low-time-warning-color-k) !important; /* Ensure override */
+    animation: pulseRedText 1s infinite;
+}
+@keyframes pulseRedText {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+#mute-button {
+    padding: 6px 12px;
+    font-size: clamp(0.75rem, 1.9vw, 1em);
+    background-color: #FFB300; /* Orange for mute */
+    color: var(--outline-k);
+    border: 2px solid var(--outline-k);
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px; /* Spacing from other UI elements */
+    font-weight: bold;
+}
+#mute-button:hover { background-color: #FF8F00; }
+
+
+#message-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 25px;
+    background-color: var(--ui-background-k);
+    color: var(--ui-text-color-k);
+    border-radius: 12px;
+    text-align: center;
+    font-size: clamp(1.1rem, 3.2vw, 1.6em);
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    max-width: 450px;
+    border: 3px solid var(--outline-k);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+#message-center button {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: clamp(0.75rem, 2.6vw, 1em); /* Responsive font size */
+    background-color: var(--button-bg-k);
+    color: white;
+    border: 2px solid var(--outline-k);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: bold;
+}
+#message-center button:hover { background-color: var(--button-hover-bg-k); }
+
+.catch-effect {
+    position: absolute;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background-color: rgba(255, 235, 59, 0.85); /* Yellow burst */
+    animation: catchBurst 0.3s ease-out forwards;
+    pointer-events: none;
+    z-index: 20;
+}
+@keyframes catchBurst {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(2.8); opacity: 0; }
+}
+
+.score-popup {
+    position: absolute;
+    font-weight: bold;
+    color: var(--score-popup-color-k);
+    text-shadow: 1px 1px 0px var(--outline-k), -1px -1px 0px var(--outline-k), 1px -1px 0px var(--outline-k), -1px 1px 0px var(--outline-k);
+    animation: scoreFlyUp 0.7s ease-out forwards;
+    pointer-events: none;
+    z-index: 21;
+    font-size: clamp(1em, 2.2vw, 1.2em);
+}
+.score-popup.dash-combo { /* For prey caught during a dash */
+    font-size: clamp(1.2em, 2.6vw, 1.45em); /* Slightly larger */
+    /* color: #FFFF8D; Slightly brighter yellow for emphasis */
+}
+@keyframes scoreFlyUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-35px) scale(0.85); }
+}
+
+.time-penalty-popup {
+    position: absolute;
+    font-weight: bold;
+    color: #FF4081; /* Pinkish-red for penalty */
+    text-shadow: 1px 1px 0px var(--outline-k), -1px -1px 0px var(--outline-k), 1px -1px 0px var(--outline-k), -1px 1px 0px var(--outline-k);
+    animation: scoreFlyUp 1s ease-out forwards; /* Longer visibility */
+    pointer-events: none;
+    z-index: 21;
+    font-size: clamp(1.1em, 2.6vw, 1.4em);
+}
+
+.splash-particle {
+    position: absolute;
+    width: 5px; height: 5px;
+    background-color: rgba(220, 240, 255, 0.7); /* Light blueish white */
+    border-radius: 50%;
+    z-index: 4; /* Above water, below most other things */
+    pointer-events: none;
+}

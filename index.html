@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragonfly Sky Chase - Enhanced Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div id="game-area">
+        <div id="celestial-body"></div>
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+        <div id="dragonfly">
+            <svg viewBox="0 0 100 60">
+                <g class="wing-pair1-k" transform="translate(35, 30)">
+                    <path class="wing-k wing-back-k" d="M0,0 C-25,-20 -45,-10 -50,0 C-45,10 -25,20 0,0 Z" fill="var(--dragonfly-wing-k)" stroke="var(--outline-k)" stroke-width="2.5" transform="rotate(15)"/>
+                    <path class="wing-k wing-front-k" d="M0,0 C-25,20 -45,10 -50,0 C-45,-10 -25,-20 0,0 Z" fill="var(--dragonfly-wing-k)" stroke="var(--outline-k)" stroke-width="2.5" transform="rotate(-15)"/>
+                </g>
+                <g class="wing-pair2-k" transform="translate(50, 30)">
+                    <path class="wing-k wing-back-k" d="M0,0 C-20,-18 -40,-8 -45,0 C-40,8 -20,18 0,0 Z" fill="var(--dragonfly-wing-k)" stroke="var(--outline-k)" stroke-width="2.5" transform="rotate(20)"/>
+                    <path class="wing-k wing-front-k" d="M0,0 C-20,18 -40,8 -45,0 C-40,-8 -20,-18 0,0 Z" fill="var(--dragonfly-wing-k)" stroke="var(--outline-k)" stroke-width="2.5" transform="rotate(-20)"/>
+                </g>
+                <ellipse cx="45" cy="30" rx="35" ry="10" fill="var(--dragonfly-body-k)" stroke="var(--outline-k)" stroke-width="3"/>
+                <circle cx="78" cy="30" r="10" fill="var(--dragonfly-head-k)" stroke="var(--outline-k)" stroke-width="3"/>
+                <circle cx="75" cy="28" r="3.5" fill="var(--dragonfly-eye-k)"/>
+                <circle cx="75" cy="28" r="1.5" fill="var(--dragonfly-pupil-k)"/>
+                <circle cx="81" cy="28" r="3.5" fill="var(--dragonfly-eye-k)"/>
+                <circle cx="81" cy="28" r="1.5" fill="var(--dragonfly-pupil-k)"/>
+            </svg>
+        </div>
+        <!-- Dynamic elements like prey, predators, scenery will be added by JS -->
+    </div>
+    <div id="ui-overlay">
+        <div>Score: <span id="score">0</span></div>
+        <div>Level: <span id="level">1</span></div>
+        <div>Prey Left: <span id="flies-left">0</span></div>
+        <div>Time: <span id="time">60</span></div>
+        <button id="mute-button">Mute</button>
+    </div>
+    <div id="message-center">
+        <div id="message-text">Catch the Prey!</div>
+        <button id="start-button">Start Game</button>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html><link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>
