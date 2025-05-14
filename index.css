@@ -12,7 +12,7 @@
 
     /* Creature Colors - to be varied per level or type */
     --dragonfly-body-k: #59D2FE; --dragonfly-head-k: #49BCEF; --dragonfly-wing-k: rgba(230, 245, 255, 0.75); --dragonfly-eye-k: #FFFFFF; --dragonfly-pupil-k: #000000;
-    --fly-body-k: #FF6B6B; --fly-wing-k: rgba(255, 190, 190, 0.8);
+    --fly-body-k: #be6565; --fly-wing-k: rgba(235, 231, 231, 0.8);
     --skimmer-body-k: #4ECDC4;
     --bird-body-k: #3D3D3D; --bird-wing-k: #555555; --bird-beak-k: #FFAF00; --bird-eye-k: #FFFFFF;
     --fish-body-k: #83EAF5; --fish-fin-k: #61C9D5;
@@ -162,16 +162,66 @@ body {
 @keyframes flap2-front-k { 0% { transform: rotate(5deg) scaleY(1); } 100% { transform: rotate(-25deg) scaleY(0.92); } }
 @keyframes flap2-back-k  { 0% { transform: rotate(-5deg) scaleY(1); } 100% { transform: rotate(25deg) scaleY(0.92); } }
 
+
 .fly {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
+    background-color: #000000; /* Black body */
+    border-radius: 50%;
+    pointer-events: none;
     z-index: 5;
-    /* Movement handled by JS, transition for smoothness if not directly setting x/y rapidly */
-    /* transition: left 0.5s linear, top 0.5s linear; */
 }
-.fly svg { width:100%; height:100%; display:block; overflow:visible; }
 
+.fly::before, .fly::after {
+    content: '';
+    position: absolute;
+    width: 8px;   /* Wing width */
+    height: 10px; /* Wing height */
+    background-color: rgba(210, 210, 210, 0.7); /* Greyish wings */
+    border-radius: 40% 40% 50% 50%; /* More teardrop/rounded wing shape */
+    /* top: -4px; /* Adjust based on transform-origin and desired overlap */
+    top: -5px; /* Slightly higher to attach better with bottom pivot */
+
+    animation-duration: 0.08s; /* Fast flap */
+    animation-timing-function: ease-in-out; /* Smoother flap */
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+.fly::before { /* Left Wing */
+    left: -3px; /* Position closer to the body center */
+    transform: rotate(-45deg); /* Initial outward angle */
+    transform-origin: 100% 100%; /* Pivot from bottom-right (inner-rear of wing) */
+    animation-name: flyFlapLeftPrecise;
+}
+
+.fly::after { /* Right Wing */
+    right: -3px; /* Position closer to the body center */
+    transform: rotate(45deg);  /* Initial outward angle */
+    transform-origin: 0% 100%;   /* Pivot from bottom-left (inner-rear of wing) */
+    animation-name: flyFlapRightPrecise; /* Can use the same keyframe if symmetric, or make slightly different */
+    /* If using one keyframe: animation-name: flyFlapLeftPrecise; animation-direction: alternate-reverse; */
+}
+
+/* Precise Keyframes for flapping motion */
+@keyframes flyFlapLeftPrecise {
+    0% {
+        transform: rotate(-45deg) scaleY(1);
+    }
+    100% {
+        transform: rotate(-25deg) scaleY(0.9); /* Flap inwards and slightly up */
+    }
+}
+
+@keyframes flyFlapRightPrecise {
+    0% {
+        transform: rotate(45deg) scaleY(1);
+    }
+    100% {
+        transform: rotate(25deg) scaleY(0.9); /* Flap inwards and slightly up */
+    }
+}
 .water-skimmer {
     position: absolute;
     width: 20px;
