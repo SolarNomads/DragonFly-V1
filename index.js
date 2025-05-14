@@ -24,14 +24,15 @@ let bgMusicSynth, bgMusicPattern; let isMuted = false;
 let dragonflyIsInvincible = false; let dragonflySpeedBoostActive = false;
 let invincibilityTimerId, speedBoostTimerId;
 let originalDragonflySpeed = 0.12, originalDashDistance = 100, originalDashDuration = 120;
+const globalFlySpeedFactor = 1.40;
 
 const levelSettings = [
-    { name: "Azure Skies", preyToLevelUp: 8, timePerLevel: 60, skyFlySpawnRate: 1200, maxSkyFlies: 6, skyFlySpeedMultiplier: 1.0, birdSpawnRate: 0, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 0, skyTerrorSpawnRate: 0, powerUpFruitSpawnRate: 20000, maxPowerUpFruits: 1, theme: { skyTop: '#65C6F7', skyBottom: '#92DDFC', sunMoon: '#FFDD00', sunMoonShadow: 'rgba(255,221,0,0.6)', cloud: '#FFFFFF', celestialType: 'sun', type: 'sky', scenery: null, dragonflyBody: '#59D2FE', dragonflyHead: '#49BCEF', dragonflyWing: 'rgba(230, 245, 255, 0.75)', flyBody: '#FF6B6B', flyWing: 'rgba(255, 190, 190, 0.8)', outline: '#2C3E50' }},
-    { name: "Serene Waters", preyToLevelUp: 12, timePerLevel: 55, skyFlySpawnRate: 1500, maxSkyFlies: 4, skyFlySpeedMultiplier: 1.0, birdSpawnRate: 25000, birdSpeed: 2, birdTimePenalty: 5, waterSkimmerSpawnRate: 2000, maxWaterSkimmers: 4, waterSkimmerSpeedMultiplier: 1.0, fishSpawnRate: 18000, fishJumpForce: 10, fishTimePenalty: 3, hunterFrogSpawnRate: 0, skyTerrorSpawnRate: 0, powerUpFruitSpawnRate: 18000, maxPowerUpFruits: 1, theme: { skyTop: '#89D8D3', skyBottom: '#ACE2E1', waterTop: '#4DBAEB', waterBottom: '#3AA7D9', sunMoon: '#FFDD00', sunMoonShadow: 'rgba(255,221,0,0.5)', cloud: '#F7F7F7', celestialType: 'sun', type: 'water', scenery: { type: 'pond', lilypadCount: 3, reedClusterCount: 4 }, dragonflyBody: '#FFD166', dragonflyHead: '#FFB74D', dragonflyWing: 'rgba(255, 240, 200, 0.75)', flyBody: '#A0E7E5', flyWing: 'rgba(200, 250, 248, 0.8)', skimmerBody: '#F76D6D', birdBody: '#546E7A', birdWing: '#78909C', birdBeak: '#FFF176', fishBody: '#FF8A80', fishFin: '#FF5252', lilypad: '#79D75A', reed: '#5EBF4A', outline: '#37474F' }},
-    { name: "Crimson Twilight", preyToLevelUp: 15, timePerLevel: 50, skyFlySpawnRate: 1000, maxSkyFlies: 7, skyFlySpeedMultiplier: 1.1, birdSpawnRate: 15000, birdSpeed: 2.5, birdTimePenalty: 6, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 22000, maxHunterFrogs: 1, hunterFrogHealth: 2, hunterFrogLungeSpeed: 4, hunterFrogLungeDelay: 300, hunterFrogDamage: 5, hunterFrogPoints: 10, skyTerrorSpawnRate: 0, powerUpFruitSpawnRate: 15000, maxPowerUpFruits: 1, theme: { skyTop: '#E55D87', skyBottom: '#5C258D', sunMoon: '#FDE1A1', sunMoonShadow: 'rgba(253,225,161,0.5)', cloud: '#D1C4E9', celestialType: 'moon-k', type: 'sky', scenery: { type: 'sparse_reeds', reedClusterCount: 5 }, dragonflyBody: '#AB47BC', dragonflyHead: '#8E24AA', dragonflyWing: 'rgba(220, 180, 255, 0.75)', flyBody: '#FFCC80', flyWing: 'rgba(255, 230, 200, 0.8)', birdBody: '#263238', birdWing: '#37474F', birdBeak: '#FFCA28', frogBody: '#DCE775', frogEye: '#FFFDE7', frogPupil: '#424242', outline: '#1A237E' }},
-    { name: "Nebula Dash", preyToLevelUp: 20, timePerLevel: 45, skyFlySpawnRate: 800, maxSkyFlies: 8, skyFlySpeedMultiplier: 1.2, birdSpawnRate: 12000, birdSpeed: 3, birdTimePenalty: 7, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 18000, maxHunterFrogs: 2, hunterFrogHealth: 3, hunterFrogLungeSpeed: 5, hunterFrogLungeDelay: 250, hunterFrogDamage: 6, hunterFrogPoints: 15, skyTerrorSpawnRate: 25000, maxSkyTerrors: 1, skyTerrorHealth: 3, skyTerrorSpeed: 2, skyTerrorEngageDelay: 400, skyTerrorDamage: 7, skyTerrorPoints: 20, powerUpFruitSpawnRate: 12000, maxPowerUpFruits: 2, theme: { skyTop: '#1A2980', skyBottom: '#26D0CE', sunMoon: '#FFF59D', sunMoonShadow: 'rgba(255,245,157,0.5)', cloud: '#6A1B9A', celestialType: 'hidden', type: 'sky', scenery: { type: 'floating_crystals', reedClusterCount: 7 }, dragonflyBody: '#FF7043', dragonflyHead: '#F4511E', dragonflyWing: 'rgba(255, 200, 180, 0.75)', flyBody: '#4FC3F7', flyWing: 'rgba(180, 230, 255, 0.8)', birdBody: '#004D40', birdWing: '#00695C', birdBeak: '#FFD54F', frogBody: '#FF8A65', frogEye: '#FFF3E0', frogPupil: '#3E2723', skyTerrorBody: '#1E1E1E', skyTerrorWing: '#424242', outline: '#0D0D0D' }},
-    { name: "Carboniferous Canopy", preyToLevelUp: 25, timePerLevel: 50, skyFlySpawnRate: 700, maxSkyFlies: 10, skyFlySpeedMultiplier: 1.3, birdSpawnRate: 10000, birdSpeed: 3.2, birdTimePenalty: 8, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 15000, maxHunterFrogs: 2, hunterFrogHealth: 3, hunterFrogLungeSpeed: 5, hunterFrogLungeDelay: 200, hunterFrogDamage: 7, hunterFrogPoints: 18, skyTerrorSpawnRate: 20000, maxSkyTerrors: 1, skyTerrorHealth: 4, skyTerrorSpeed: 2.5, skyTerrorEngageDelay: 350, skyTerrorDamage: 8, skyTerrorPoints: 25, powerUpFruitSpawnRate: 10000, maxPowerUpFruits: 2, theme: { skyTop: '#79A14F', skyBottom: '#AAD678', sunMoon: '#FFFACD', sunMoonShadow: 'rgba(255,250,205,0.6)', cloud: '#E8F5E9', celestialType: 'sun', type: 'sky', scenery: { type: 'grassland', grassClumpCount: 15 }, dragonflyBody: '#4CAF50', dragonflyHead: '#388E3C', dragonflyWing: 'rgba(200, 255, 200, 0.7)', flyBody: '#FF9800', flyWing: 'rgba(255, 224, 178, 0.8)', birdBody: '#5D4037', birdWing: '#6D4C41', birdBeak: '#FFC107', frogBody: '#CDDC39', frogEye: '#FFF9C4', frogPupil: '#795548', skyTerrorBody: '#3E2723', skyTerrorWing: '#4E342E', outline: '#2E7D32' }},
-    { name: "Triassic Inferno", preyToLevelUp: 30, timePerLevel: 48, skyFlySpawnRate: 600, maxSkyFlies: 12, skyFlySpeedMultiplier: 1.4, birdSpawnRate: 8000, birdSpeed: 3.5, birdTimePenalty: 9, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 12000, maxHunterFrogs: 3, hunterFrogHealth: 4, hunterFrogLungeSpeed: 6, hunterFrogLungeDelay: 150, hunterFrogDamage: 8, hunterFrogPoints: 22, skyTerrorSpawnRate: 18000, maxSkyTerrors: 2, skyTerrorHealth: 5, skyTerrorSpeed: 2.8, skyTerrorEngageDelay: 300, skyTerrorDamage: 9, skyTerrorPoints: 30, powerUpFruitSpawnRate: 9000, maxPowerUpFruits: 3, theme: { skyTop: '#FF8A65', skyBottom: '#FFCCBC', sunMoon: '#FFFFFF', sunMoonShadow: 'rgba(255,255,255,0.4)', cloud: '#FFE0B2', celestialType: 'sun', type: 'sky', scenery: { type: 'prehistoric_forest', treeCount: 6 }, dragonflyBody: '#D84315', dragonflyHead: '#BF360C', dragonflyWing: 'rgba(255, 204, 188, 0.7)', flyBody: '#FDD835', flyWing: 'rgba(255, 249, 196, 0.8)', birdBody: '#212121', birdWing: '#424242', birdBeak: '#FF6F00', frogBody: '#EF6C00', frogEye: '#FFF3E0', frogPupil: '#D84315', skyTerrorBody: '#BF360C', skyTerrorWing: '#A1887F', outline: '#8D6E63' }}
+    { name: "Azure Skies", preyToLevelUp: 10, timePerLevel: 60, skyFlySpawnRate: 1200, maxSkyFlies: 6, skyFlySpeedMultiplier: 1.0, birdSpawnRate: 0, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 0, skyTerrorSpawnRate: 0, powerUpFruitSpawnRate: 20000, maxPowerUpFruits: 1, theme: { skyTop: '#65C6F7', skyBottom: '#92DDFC', sunMoon: '#FFDD00', sunMoonShadow: 'rgba(255,221,0,0.6)', cloud: '#FFFFFF', celestialType: 'sun', type: 'sky', scenery: null, dragonflyBody: '#59D2FE', dragonflyHead: '#49BCEF', dragonflyWing: 'rgba(230, 245, 255, 0.75)', flyBody: '#FF6B6B', flyWing: 'rgba(255, 190, 190, 0.8)', outline: '#2C3E50' }},
+    { name: "Serene Waters", preyToLevelUp: 12 * 2.5, timePerLevel: 60, skyFlySpawnRate: 1500, maxSkyFlies: 4, skyFlySpeedMultiplier: 1.0, birdSpawnRate: 25000, birdSpeed: 2, birdTimePenalty: 5, waterSkimmerSpawnRate: 2000, maxWaterSkimmers: 4, waterSkimmerSpeedMultiplier: 1.0, fishSpawnRate: 18000, fishJumpForce: 10, fishTimePenalty: 3, hunterFrogSpawnRate: 0, skyTerrorSpawnRate: 0, powerUpFruitSpawnRate: 18000, maxPowerUpFruits: 1, theme: { skyTop: '#89D8D3', skyBottom: '#ACE2E1', waterTop: '#4DBAEB', waterBottom: '#3AA7D9', sunMoon: '#FFDD00', sunMoonShadow: 'rgba(255,221,0,0.5)', cloud: '#F7F7F7', celestialType: 'sun', type: 'water', scenery: { type: 'pond', lilypadCount: 3, reedClusterCount: 4 }, dragonflyBody: '#FFD166', dragonflyHead: '#FFB74D', dragonflyWing: 'rgba(255, 240, 200, 0.75)', flyBody: '#A0E7E5', flyWing: 'rgba(200, 250, 248, 0.8)', skimmerBody: '#F76D6D', birdBody: '#546E7A', birdWing: '#78909C', birdBeak: '#FFF176', fishBody: '#FF8A80', fishFin: '#FF5252', lilypad: '#79D75A', reed: '#5EBF4A', outline: '#37474F' }},
+    { name: "Crimson Twilight", preyToLevelUp: 15 * 3, timePerLevel: 60, skyFlySpawnRate: 1000, maxSkyFlies: 7, skyFlySpeedMultiplier: 1.1, birdSpawnRate: 15000, birdSpeed: 2.5, birdTimePenalty: 6, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 22000, maxHunterFrogs: 1, hunterFrogHealth: 2, hunterFrogLungeSpeed: 4, hunterFrogLungeDelay: 300, hunterFrogDamage: 5, hunterFrogPoints: 10, skyTerrorSpawnRate: 0, powerUpFruitSpawnRate: 15000, maxPowerUpFruits: 1, theme: { skyTop: '#E55D87', skyBottom: '#5C258D', sunMoon: '#FDE1A1', sunMoonShadow: 'rgba(253,225,161,0.5)', cloud: '#D1C4E9', celestialType: 'moon-k', type: 'sky', scenery: { type: 'sparse_reeds', reedClusterCount: 5 }, dragonflyBody: '#AB47BC', dragonflyHead: '#8E24AA', dragonflyWing: 'rgba(220, 180, 255, 0.75)', flyBody: '#FFCC80', flyWing: 'rgba(255, 230, 200, 0.8)', birdBody: '#263238', birdWing: '#37474F', birdBeak: '#FFCA28', frogBody: '#DCE775', frogEye: '#FFFDE7', frogPupil: '#424242', outline: '#1A237E' }},
+    { name: "Nebula Dash", preyToLevelUp: 20 * 2.5, timePerLevel: 60, skyFlySpawnRate: 800, maxSkyFlies: 8, skyFlySpeedMultiplier: 1.2, birdSpawnRate: 12000, birdSpeed: 3, birdTimePenalty: 7, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 18000, maxHunterFrogs: 2, hunterFrogHealth: 3, hunterFrogLungeSpeed: 5, hunterFrogLungeDelay: 250, hunterFrogDamage: 6, hunterFrogPoints: 15, skyTerrorSpawnRate: 25000, maxSkyTerrors: 1, skyTerrorHealth: 3, skyTerrorSpeed: 2, skyTerrorEngageDelay: 400, skyTerrorDamage: 7, skyTerrorPoints: 20, powerUpFruitSpawnRate: 12000, maxPowerUpFruits: 2, theme: { skyTop: '#1A2980', skyBottom: '#26D0CE', sunMoon: '#FFF59D', sunMoonShadow: 'rgba(255,245,157,0.5)', cloud: '#6A1B9A', celestialType: 'hidden', type: 'sky', scenery: { type: 'floating_crystals', reedClusterCount: 7 }, dragonflyBody: '#FF7043', dragonflyHead: '#F4511E', dragonflyWing: 'rgba(255, 200, 180, 0.75)', flyBody: '#4FC3F7', flyWing: 'rgba(180, 230, 255, 0.8)', birdBody: '#004D40', birdWing: '#00695C', birdBeak: '#FFD54F', frogBody: '#FF8A65', frogEye: '#FFF3E0', frogPupil: '#3E2723', skyTerrorBody: '#1E1E1E', skyTerrorWing: '#424242', outline: '#0D0D0D' }},
+    { name: "Carboniferous Canopy", preyToLevelUp: 30 * 2, timePerLevel: 70, skyFlySpawnRate: 700, maxSkyFlies: 10, skyFlySpeedMultiplier: 1.3, birdSpawnRate: 10000, birdSpeed: 3.2, birdTimePenalty: 8, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 15000, maxHunterFrogs: 2, hunterFrogHealth: 3, hunterFrogLungeSpeed: 5, hunterFrogLungeDelay: 200, hunterFrogDamage: 7, hunterFrogPoints: 18, skyTerrorSpawnRate: 20000, maxSkyTerrors: 1, skyTerrorHealth: 4, skyTerrorSpeed: 2.5, skyTerrorEngageDelay: 350, skyTerrorDamage: 8, skyTerrorPoints: 25, powerUpFruitSpawnRate: 10000, maxPowerUpFruits: 2, theme: { skyTop: '#79A14F', skyBottom: '#AAD678', sunMoon: '#FFFACD', sunMoonShadow: 'rgba(255,250,205,0.6)', cloud: '#E8F5E9', celestialType: 'sun', type: 'sky', scenery: { type: 'grassland', grassClumpCount: 15 }, dragonflyBody: '#4CAF50', dragonflyHead: '#388E3C', dragonflyWing: 'rgba(200, 255, 200, 0.7)', flyBody: '#FF9800', flyWing: 'rgba(255, 224, 178, 0.8)', birdBody: '#5D4037', birdWing: '#6D4C41', birdBeak: '#FFC107', frogBody: '#CDDC39', frogEye: '#FFF9C4', frogPupil: '#795548', skyTerrorBody: '#3E2723', skyTerrorWing: '#4E342E', outline: '#2E7D32' }},
+    { name: "Triassic Inferno", preyToLevelUp: 30 * 2.5, timePerLevel: 80, skyFlySpawnRate: 600, maxSkyFlies: 12, skyFlySpeedMultiplier: 1.4, birdSpawnRate: 8000, birdSpeed: 3.5, birdTimePenalty: 9, waterSkimmerSpawnRate: 0, fishSpawnRate: 0, hunterFrogSpawnRate: 12000, maxHunterFrogs: 3, hunterFrogHealth: 4, hunterFrogLungeSpeed: 6, hunterFrogLungeDelay: 150, hunterFrogDamage: 8, hunterFrogPoints: 22, skyTerrorSpawnRate: 18000, maxSkyTerrors: 2, skyTerrorHealth: 5, skyTerrorSpeed: 2.8, skyTerrorEngageDelay: 300, skyTerrorDamage: 9, skyTerrorPoints: 30, powerUpFruitSpawnRate: 9000, maxPowerUpFruits: 3, theme: { skyTop: '#FF8A65', skyBottom: '#FFCCBC', sunMoon: '#FFFFFF', sunMoonShadow: 'rgba(255,255,255,0.4)', cloud: '#FFE0B2', celestialType: 'sun', type: 'sky', scenery: { type: 'prehistoric_forest', treeCount: 6 }, dragonflyBody: '#D84315', dragonflyHead: '#BF360C', dragonflyWing: 'rgba(255, 204, 188, 0.7)', flyBody: '#FDD835', flyWing: 'rgba(255, 249, 196, 0.8)', birdBody: '#212121', birdWing: '#424242', birdBeak: '#FF6F00', frogBody: '#EF6C00', frogEye: '#FFF3E0', frogPupil: '#D84315', skyTerrorBody: '#BF360C', skyTerrorWing: '#A1887F', outline: '#8D6E63' }}
 ];
 
 // --- ALL GAME LOGIC FUNCTIONS ---
@@ -407,20 +408,31 @@ function dashDragonfly() {
 }
 
 function createFly() {
-    if(!gameArea) return;
+    if (!gameArea) return;
     const levelConf = levelSettings[Math.min(currentLevel - 1, levelSettings.length - 1)];
     if (!gameActive || levelConf.skyFlySpawnRate === 0 || flies.length >= levelConf.maxSkyFlies) return;
-    const fly = document.createElement('div'); fly.classList.add('fly');
-    fly.innerHTML = `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="var(--fly-body-k)" stroke="var(--outline-k)" stroke-width="1.5"/><ellipse cx="5" cy="7" rx="4" ry="2" fill="var(--fly-wing-k)" opacity="0.8" transform="rotate(-30 5 7)"/><ellipse cx="15" cy="7" rx="4" ry="2" fill="var(--fly-wing-k)" opacity="0.8" transform="rotate(30 15 7)"/></svg>`;
-    const x = Math.random() * (gameArea.offsetWidth - 20) + 10;
-    const y = Math.random() * (gameArea.offsetHeight * (levelConf.theme.type === 'water' ? 0.5 : 0.9)) + 10;
-    fly.style.left = `${x}px`; fly.style.top = `${y}px`;
+
+    const fly = document.createElement('div');
+    fly.classList.add('fly');
+    const flyBodySize = 10;
+    const margin = 4;
+    const spawnableWidth = gameArea.offsetWidth - flyBodySize - (2 * margin);
+    const flyZoneHeight = gameArea.offsetHeight * (levelConf.theme.type === 'water' ? 0.5 : 0.9);
+    const spawnableHeightArea = flyZoneHeight - flyBodySize - (2 * margin);
+    const x = Math.random() * Math.max(0, spawnableWidth) + margin;
+    const y = Math.random() * Math.max(0, spawnableHeightArea) + margin;
+    fly.style.left = `${x}px`;
+    fly.style.top = `${y}px`;
     const speedMod = levelConf.skyFlySpeedMultiplier;
-    fly.dataset.vx = (Math.random() - 0.5) * 2 * speedMod;
-    fly.dataset.vy = (Math.random() - 0.5) * 2 * speedMod;
-    fly.dataset.x = x; fly.dataset.y = y;
+   fly.dataset.vx = (Math.random() - 0.5) * 2 * speedMod * globalFlySpeedFactor;
+    fly.dataset.vy = (Math.random() - 0.5) * 2 * speedMod * globalFlySpeedFactor;
+
+    fly.dataset.x = x;
+    fly.dataset.y = y;
     fly.dataset.id = `fly-${Date.now()}-${Math.random()}`;
-    gameArea.appendChild(fly); flies.push(fly);
+
+    gameArea.appendChild(fly);
+    flies.push(fly);
 }
 function updateFlies() {
     if (!gameActive || !gameArea) return;
@@ -434,10 +446,17 @@ function updateFlies() {
         if (x <= 0 || x >= gameArea.offsetWidth - fly.offsetWidth) { vx *= -1; x = Math.max(0, Math.min(gameArea.offsetWidth - fly.offsetWidth, x)); }
         if (y <= 0 || y >= skyLimit - fly.offsetHeight) { vy *= -1; y = Math.max(0, Math.min(skyLimit - fly.offsetHeight, y)); }
         const changeDirChance = 0.02 + (currentLevel * 0.002);
-        if (Math.random() < changeDirChance) vx = (Math.random() - 0.5) * 2.5 * levelConf.skyFlySpeedMultiplier;
-        if (Math.random() < changeDirChance) vy = (Math.random() - 0.5) * 2.5 * levelConf.skyFlySpeedMultiplier;
-        fly.style.left = `${x}px`; fly.style.top = `${y}px`;
-        fly.dataset.x = x; fly.dataset.y = y; fly.dataset.vx = vx; fly.dataset.vy = vy;
+        if (Math.random() < changeDirChance) {vx = (Math.random() - 0.5) * 2.5 * levelConf.skyFlySpeedMultiplier * globalFlySpeedFactor;
+        }
+        if (Math.random() < changeDirChance) vy = (Math.random() - 0.5) * 2.5 * levelConf.skyFlySpeedMultiplier * globalFlySpeedFactor;
+        
+        fly.style.left = `${x}px`; // x was already updated with old vx
+        fly.style.top = `${y}px`;  // y was already updated with old vy
+
+        fly.dataset.x = x; // Store the updated x
+        fly.dataset.y = y; // Store the updated y
+        fly.dataset.vx = vx; // Store the potentially new vx
+        fly.dataset.vy = vy; // Store the potentially new vy
     });
 }
 function createWaterSkimmer() {
